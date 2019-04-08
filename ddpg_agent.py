@@ -19,6 +19,9 @@ class Agent():
                  batch_size=128, gamma=0.99, tau=5e-3, lr_actor=1e-3, lr_critic=1e-3, weight_decay=0, device="cuda:0",
                 fc1_units=256, fc2_units=128):
 
+        # the network default parameter adapted from https://github.com/xkiwilabs/Multi-Agent-DDPG-using-PTtorch-and-ML-Agents
+        # Batchnorm added to the architeture for better performance.
+
         self.batch_size = batch_size
         self.gamma = gamma
         self.tau = tau
