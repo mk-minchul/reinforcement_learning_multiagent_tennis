@@ -54,40 +54,34 @@ def multi_agent_ddpg(env, brain_name, title, n_episodes, action_size, state_size
         states = env_info.vector_observations
         states = np.reshape(states, (1, all_agents_statesize))  # reshape so we can feed both agents states to each agent
 
-        # reset each agent for a new episode
+        # reset
         agent1.reset()
         agent2.reset()
 
-        # set the initial episode score to zero.
+        # place to store scores
         agent_scores = np.zeros(num_agents)
         t = 0
         while True:
-            # determine actions for the unity agents from current sate, using noise for exploration
+            # two agents actions
             actions_1 = agent1.act(states, add_noise=True)
             actions_2 = agent2.act(states, add_noise=True)
 
-            # send the actions to the unity agents in the environment and receive resultant environment information
+            # step environment for two agents and get next states
             actions = np.concatenate((actions_1, actions_2), axis=0)
             actions = np.reshape(actions, (1, 4))
             env_info = env.step(actions)[brain_name]
-
-            next_states = env_info.vector_observations  # get the next states for each unity agent in the environment
+            next_states = env_info.vector_observations
             next_states = np.reshape(next_states, (1, all_agents_statesize))
-            rewards = env_info.rewards  # get the rewards for each unity agent in the environment
-            dones = env_info.local_done  # see if episode has finished for each unity agent in the environment
+            rewards = env_info.rewards
+            dones = env_info.local_done
 
-            # Send (S, A, R, S') info to the training agent for replay buffer (memory) and network updates
+            # update the agents accordingly (ddpg)
             agent1.step(states, actions_1, rewards[0], next_states, dones[0], n_updates, update_intervals, t)
             agent2.step(states, actions_2, rewards[1], next_states, dones[1], n_updates, update_intervals, t)
 
-            # set new states to current states for determining next actions
             states = next_states
-            # print(states)
-            # Update episode score for each unity agent
             agent_scores += rewards
 
-            # If any unity agent indicates that the episode is done,
-            # then exit episode loop, to begin new episode
             if np.any(dones):
                 break
             t += 1

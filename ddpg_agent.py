@@ -12,6 +12,7 @@ import torch.optim as optim
 BUFFER_SIZE = int(1e6)  # replay buffer size
 
 class Agent():
+
     """Interacts with and learns from the environment."""
 
     def __init__(self, state_size, action_size, random_seed, num_agents,
@@ -48,6 +49,7 @@ class Agent():
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, self.batch_size, random_seed, device=self.device)
 
     def step(self, state, action, reward, next_state, done, n_updates, timestep_interval, timestep):
+        # add to the buffer and update the network when necessary
         self.remember(state, action, reward, next_state, done)
         self.update(n_updates, timestep_interval, timestep)
 
@@ -56,10 +58,6 @@ class Agent():
         # Save experience / reward
 
         self.memory.add(state, action, reward, next_state, done)
-
-        # for a_state, a_action, a_reward, a_next_state, a_done in zip(state, action, reward, next_state, done):
-        #     self.memory.add(a_state, a_action, a_reward, a_next_state, a_done)
-
 
     def update(self, n_updates=10, timestep_interval=20, timestep=20):
         # Learn, if enough samples are available in memory
@@ -84,16 +82,7 @@ class Agent():
         self.noise.reset()
 
     def learn(self, experiences, gamma):
-        """Update policy and value parameters using given batch of experience tuples.
-        Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
-        where:
-            actor_target(state) -> action
-            critic_target(state, action) -> Q-value
-        Params
-        ======
-            experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
-            gamma (float): discount factor
-        """
+
         states, actions, rewards, next_states, dones = experiences
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
@@ -101,7 +90,6 @@ class Agent():
         Q_targets_next = self.critic_target(next_states, actions_next)
         # Compute Q targets for current states (y_i)
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
-        # Q_targets = rewards.view(-1,1) + (gamma * Q_targets_next * (1 - dones.view(-1,1)))
         # Compute critic loss
         Q_expected = self.critic_local(states, actions)
         critic_loss = F.mse_loss(Q_expected, Q_targets)
