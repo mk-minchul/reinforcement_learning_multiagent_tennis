@@ -9,6 +9,14 @@ It uses multi agent ddpg method and 3 layer neural network to model the agent. T
 
 The state space has 8 dimensions which contain the information regarding the agent's current environment.  Given this information, the agent has to learn how to best select actions.  Each action is a 2 dimensional vecotr, corresponding to movement toward (or away from) the net, and jumping.
 
+Two agents are bounding the ball over a net. So the agengts will receive rewards as long as they keep the ball alive (+0.1). If the ball reaches the ground, it will receive the reward -0.1. The goal is to train the agents to collaborate with one another. The environment is considered solved when the average score over 100 episode is above 0.5.
+
+### Dependencies:
+    '''
+    $ pip install -r requirements.txt
+    '''
+
+
 ### Instruction:
 1. Download the environment from [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis_Linux_NoVis.zip)
 2. Fix the env path in `main.py`
